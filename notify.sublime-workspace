@@ -1,0 +1,943 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"Pri",
+				"Println"
+			],
+			[
+				"enc",
+				"encoding/"
+			],
+			[
+				"app",
+				"append"
+			],
+			[
+				"Pr",
+				"Println"
+			],
+			[
+				"P",
+				"Println"
+			],
+			[
+				"D",
+				"Duration()"
+			],
+			[
+				"sy",
+				"sync/"
+			],
+			[
+				"U",
+				"Unix"
+			],
+			[
+				"M",
+				"Millisecond"
+			],
+			[
+				"N",
+				"Now"
+			],
+			[
+				"Mi",
+				"Millisecond"
+			],
+			[
+				"S",
+				"Sleep"
+			],
+			[
+				"err",
+				"errors"
+			],
+			[
+				"br",
+				"break"
+			],
+			[
+				"byte",
+				"bytes"
+			],
+			[
+				"b",
+				"bytes"
+			],
+			[
+				"R",
+				"Reset"
+			],
+			[
+				"T",
+				"Type"
+			],
+			[
+				"K",
+				"Kind"
+			],
+			[
+				"I",
+				"Interface"
+			],
+			[
+				"E",
+				"Elem"
+			],
+			[
+				"V",
+				"ValueOf"
+			],
+			[
+				"Prin",
+				"Println"
+			],
+			[
+				"F",
+				"Elem().Field"
+			],
+			[
+				"L",
+				"len"
+			],
+			[
+				"l",
+				"len"
+			],
+			[
+				"Pi",
+				"Println"
+			],
+			[
+				"fmtPri",
+				"fmt.Println"
+			],
+			[
+				"rec",
+				"recover"
+			],
+			[
+				"Set",
+				"SetOutput"
+			],
+			[
+				"W",
+				"WriteString"
+			],
+			[
+				"packa",
+				"package main\t  Module"
+			],
+			[
+				"cat",
+				"catNews"
+			],
+			[
+				"ui",
+				"uint32"
+			],
+			[
+				"er",
+				"error"
+			],
+			[
+				"fu",
+				"futures_period_new\t  func(p *xCPeriod, c *xFutures) bool"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "main.go",
+			"settings":
+			{
+				"buffer_size": 1599,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			},
+			"undo_stack":
+			[
+				[
+					3,
+					1,
+					"paste",
+					null,
+					"AQAAAAAAAAAAAAAARAYAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					5,
+					1,
+					"lsp_apply_document_edit",
+					{
+						"changes":
+						[
+							[
+								[
+									1,
+									0
+								],
+								[
+									1,
+									0
+								],
+								"\n",
+								null
+							],
+							[
+								[
+									12,
+									16
+								],
+								[
+									12,
+									17
+								],
+								"",
+								null
+							],
+							[
+								[
+									12,
+									17
+								],
+								[
+									12,
+									17
+								],
+								"\n\t\t",
+								null
+							],
+							[
+								[
+									12,
+									45
+								],
+								[
+									12,
+									47
+								],
+								"",
+								null
+							],
+							[
+								[
+									12,
+									47
+								],
+								[
+									12,
+									47
+								],
+								"\n\t",
+								null
+							],
+							[
+								[
+									16,
+									11
+								],
+								[
+									16,
+									12
+								],
+								"",
+								null
+							],
+							[
+								[
+									19,
+									16
+								],
+								[
+									19,
+									17
+								],
+								"",
+								null
+							],
+							[
+								[
+									19,
+									17
+								],
+								[
+									19,
+									17
+								],
+								"\n\t\t",
+								null
+							],
+							[
+								[
+									19,
+									45
+								],
+								[
+									19,
+									47
+								],
+								"",
+								null
+							],
+							[
+								[
+									19,
+									47
+								],
+								[
+									19,
+									47
+								],
+								"\n\t",
+								null
+							],
+							[
+								[
+									26,
+									17
+								],
+								[
+									26,
+									18
+								],
+								"",
+								null
+							],
+							[
+								[
+									26,
+									18
+								],
+								[
+									26,
+									18
+								],
+								"\n\t\t\t",
+								null
+							],
+							[
+								[
+									26,
+									46
+								],
+								[
+									26,
+									48
+								],
+								"",
+								null
+							],
+							[
+								[
+									26,
+									48
+								],
+								[
+									26,
+									48
+								],
+								"\n\t\t",
+								null
+							],
+							[
+								[
+									38,
+									48
+								],
+								[
+									38,
+									60
+								],
+								"",
+								null
+							],
+							[
+								[
+									38,
+									60
+								],
+								[
+									38,
+									60
+								],
+								"\n\t\t\t\t",
+								null
+							],
+							[
+								[
+									39,
+									48
+								],
+								[
+									39,
+									60
+								],
+								"",
+								null
+							],
+							[
+								[
+									39,
+									60
+								],
+								[
+									39,
+									60
+								],
+								"\n\t\t\t\t",
+								null
+							],
+							[
+								[
+									40,
+									58
+								],
+								[
+									40,
+									60
+								],
+								"",
+								null
+							],
+							[
+								[
+									40,
+									60
+								],
+								[
+									40,
+									60
+								],
+								"\n\t\t\t\t",
+								null
+							],
+							[
+								[
+									41,
+									52
+								],
+								[
+									41,
+									60
+								],
+								"",
+								null
+							],
+							[
+								[
+									41,
+									60
+								],
+								[
+									41,
+									60
+								],
+								"\n\t\t\t\t",
+								null
+							],
+							[
+								[
+									42,
+									56
+								],
+								[
+									42,
+									60
+								],
+								"",
+								null
+							],
+							[
+								[
+									42,
+									60
+								],
+								[
+									42,
+									60
+								],
+								"\n\t\t\t\t",
+								null
+							],
+							[
+								[
+									43,
+									54
+								],
+								[
+									43,
+									60
+								],
+								"",
+								null
+							],
+							[
+								[
+									43,
+									60
+								],
+								[
+									43,
+									60
+								],
+								"\n\t\t\t\t",
+								null
+							],
+							[
+								[
+									49,
+									0
+								],
+								[
+									49,
+									0
+								],
+								"",
+								null
+							],
+							[
+								[
+									50,
+									0
+								],
+								[
+									50,
+									0
+								],
+								"\n",
+								null
+							]
+						]
+					},
+					"HAAAAEQGAAAAAAAARQYAAAAAAAAAAAAAQwYAAAAAAABDBgAAAAAAAAAAAADeBQAAAAAAAOMFAAAAAAAAAAAAANgFAAAAAAAA2AUAAAAAAAAGAAAAICAgICAgbAUAAAAAAABxBQAAAAAAAAAAAABoBQAAAAAAAGgFAAAAAAAABAAAACAgICD8BAAAAAAAAAEFAAAAAAAAAAAAAPQEAAAAAAAA9AQAAAAAAAAIAAAAICAgICAgICCbBAAAAAAAAKAEAAAAAAAAAAAAAJkEAAAAAAAAmQQAAAAAAAACAAAAICA/BAAAAAAAAEQEAAAAAAAAAAAAADMEAAAAAAAAMwQAAAAAAAAMAAAAICAgICAgICAgICAg4wMAAAAAAADoAwAAAAAAAAAAAADXAwAAAAAAANcDAAAAAAAADAAAACAgICAgICAgICAgIF0CAAAAAAAAYAIAAAAAAAAAAAAAWwIAAAAAAABbAgAAAAAAAAIAAAA7ID8CAAAAAAAAQwIAAAAAAAAAAAAAPgIAAAAAAAA+AgAAAAAAAAEAAAAgrgEAAAAAAACwAQAAAAAAAAAAAACsAQAAAAAAAKwBAAAAAAAAAgAAADsgkAEAAAAAAACTAQAAAAAAAAAAAACPAQAAAAAAAI8BAAAAAAAAAQAAACD2AAAAAAAAAPYAAAAAAAAAAQAAACCyAAAAAAAAALQAAAAAAAAAAAAAALAAAAAAAAAAsAAAAAAAAAACAAAAOyCUAAAAAAAAAJcAAAAAAAAAAAAAAJMAAAAAAAAAkwAAAAAAAAABAAAAIA0AAAAAAAAADgAAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAARAYAAAAAAABEBgAAAAAAAAAAAAAAAPC/"
+				]
+			]
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"pa",
+				"Package Control: Install Package"
+			],
+			[
+				"pack",
+				"Package Control: List Packages"
+			],
+			[
+				"Package Control: debug",
+				"Package Control: Enable Debug Mode"
+			],
+			[
+				"Package Control:",
+				"Package Control: List Packages"
+			],
+			[
+				"Package Control: ",
+				"Package Control: Install Package"
+			],
+			[
+				"buildv",
+				"Build With: Go - Cross-Compile (Interactive)"
+			],
+			[
+				"buildview",
+				"Disable/Enable buildview for this window"
+			],
+			[
+				"build",
+				"Set Syntax: Golang Build Output"
+			],
+			[
+				"pref",
+				"Preferences: LSP Key Bindings"
+			],
+			[
+				"Go",
+				"Go: Open Terminal"
+			],
+			[
+				"lsp:",
+				"LSP: Disable Language Server in Project"
+			],
+			[
+				"lsp:re",
+				"LSP: Restart Server"
+			],
+			[
+				"lsp",
+				"LSP: Enable Language Server in Project"
+			],
+			[
+				"LSP:",
+				"LSP: Enable Language Server in Project"
+			],
+			[
+				"package",
+				"View Package File"
+			],
+			[
+				"packa",
+				"Package Control: Install Package"
+			],
+			[
+				"UI: Select Color Scheme",
+				"UI: Select Color Scheme"
+			],
+			[
+				"Package",
+				"PackageResourceViewer: Open Resource"
+			],
+			[
+				"packagere",
+				"PackageResourceViewer: Open Resource"
+			],
+			[
+				"PackageResourceViewer",
+				"PackageResourceViewer: Open Resource"
+			],
+			[
+				"LSP: Enable Language Server",
+				"LSP: Enable Language Server Globally"
+			],
+			[
+				"Package Control: Satisfy Dependencies",
+				"Package Control: Satisfy Dependencies"
+			]
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 453.0,
+		"history":
+		[
+			"test",
+			"ls",
+			"cd /vlm",
+			"cd /",
+			"dwewe",
+			"go run main.go",
+			"go build"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/vlm/c1/notify_go17/src/notify"
+	],
+	"file_history":
+	[
+		"/vlm/c1/nami_go17/src/nami/vendor/github.com/gin-gonic/gin/context.go",
+		"/vlm/c1/nami_go17/src/nami/nami.sublime-project",
+		"/vlm/c1/nami_go17/src/nami/go.mod",
+		"/vlm/c1/nami_go17/src/nami/main.go",
+		"/vlm/work/src/test/pointer/readMe.json",
+		"/home/takelau/go/src/encoding/json/encode.go",
+		"/home/takelau/go/src/bytes/buffer.go",
+		"/home/takelau/go/src/sync/map.go",
+		"/home/takelau/go/src/encoding/json/stream.go",
+		"/home/takelau/go/src/encoding/json/decode.go",
+		"/home/takelau/go/src/crypto/sha1/sha1.go",
+		"/home/takelau/go/src/net/http/transport.go",
+		"/home/takelau/go/src/net/http/client.go",
+		"/home/takelau/go/src/net/http/server.go",
+		"/home/takelau/go/src/net/http/request.go",
+		"/home/takelau/go/src/internal/nettrace/nettrace.go",
+		"/home/takelau/go/src/net/tcpsock_posix.go",
+		"/home/takelau/go/src/net/dial.go",
+		"/home/takelau/go/src/net/http/roundtrip.go",
+		"/home/takelau/go/src/sync/once.go",
+		"/home/takelau/go/src/net/http/response.go",
+		"/home/takelau/go/src/path/path.go",
+		"/home/takelau/go/src/internal/poll/fd_poll_runtime.go",
+		"/home/takelau/go/src/net/fd_posix.go",
+		"/home/takelau/go/src/net/net.go",
+		"/home/takelau/go/src/net/tcpsock.go",
+		"/home/takelau/go/src/net/ipsock_posix.go",
+		"/home/takelau/go/src/context/context.go",
+		"/vlm/work/src/test/pointer/pointer.sublime-project",
+		"/home/takelau/.config/sublime-text-3/Packages/User/golang.sublime-settings",
+		"/vlm/work/src/test/pointer/main.go",
+		"/home/takelau/go/src/sync/waitgroup.go",
+		"/home/takelau/go/src/io/io.go",
+		"/home/takelau/go/src/internal/poll/fd_unix.go",
+		"/home/takelau/go/src/syscall/syscall_unix.go",
+		"/home/takelau/go/src/syscall/zsyscall_linux_amd64.go",
+		"/home/takelau/go/src/os/types.go",
+		"/home/takelau/go/src/os/file.go",
+		"/home/takelau/go/src/os/file_posix.go",
+		"/home/takelau/go/src/os/file_unix.go",
+		"/home/takelau/go/src/syscall/lsf_linux.go",
+		"/home/takelau/go/src/internal/race/norace.go",
+		"/home/takelau/go/src/fmt/errors.go",
+		"/home/takelau/go/src/fmt/print.go",
+		"/home/takelau/go/src/fmt/format.go",
+		"/vlm/work/src/test/pointer/pointer.sublime-workspace",
+		"/home/takelau/.config/sublime-text-3/Packages/User/Gofmt.sublime-settings",
+		"/home/takelau/.config/sublime-text-3/Packages/Gofmt/Gofmt.sublime-settings",
+		"/home/takelau/.config/sublime-text-3/Packages/User/GoDebug.sublime-settings",
+		"/home/takelau/.config/sublime-text-3/Packages/GoDebug/GoDebug.sublime-settings",
+		"/home/takelau/nami/point/src/lang.js",
+		"/home/takelau/nami/point/src/base.js",
+		"/home/takelau/nami/point/src/main.js",
+		"/home/takelau/c7w_sftp/src/namikot/lib.go",
+		"/home/takelau/.config/sublime-merge/Packages/User/Default (Linux).sublime-keymap",
+		"/home/takelau/.config/sublime-merge/Packages/User/Preferences.sublime-settings",
+		"/home/takelau/c7w_sftp/ds248a/air/hacker_test.go",
+		"/home/takelau/.config/sublime-merge/Packages/User/Commit Message.sublime-settings",
+		"/home/takelau/c7w_sftp/ds248a/air/m_hacker.go",
+		"/home/takelau/c7w_sftp/ds248a/air/c_hacker.go",
+		"/home/takelau/c7w_sftp/ds248a/air/main.go",
+		"/home/takelau/c7w_sftp/ds248a/air/main_test.go",
+		"/home/takelau/c7w_sftp/ds248a/air/redis.go",
+		"/home/takelau/c7w_sftp/ds248a/air/router.go",
+		"/home/takelau/c7w_sftp/ds248a/air/cache.go",
+		"/home/takelau/c7w_sftp/ds248a/air/server.go",
+		"/home/takelau/c7w_sftp/ds248a/air/README.md",
+		"/home/takelau/c7w_sftp/ds248a/air/LICENSE",
+		"/home/takelau/c7w_sftp/ds248a/air/log.go",
+		"/home/takelau/c7w_sftp/ds248a/air/db/redis.go",
+		"/home/takelau/c7w_sftp/ds248a/air/log/log.go",
+		"/home/takelau/c7w_sftp/ds248a/air/server/server.go",
+		"/home/takelau/c7w_sftp/ds248a/air/server/main.go",
+		"/home/takelau/c7w_sftp/ds248a/air/srv/main.go",
+		"/home/takelau/c7w_sftp/ds248a/air/m_log.go",
+		"/home/takelau/c7w_sftp/ds248a/point/main.go",
+		"/home/takelau/c7w_sftp/ds248a/air2/main.go",
+		"/home/takelau/c7w_sftp/ds248a/point/README.md",
+		"/home/takelau/c7w_sftp/ds248a/point/m_project.go",
+		"/home/takelau/c7w_sftp/ds248a/point/c_parser.go",
+		"/home/takelau/c7w_sftp/ds248a/point/router.go",
+		"/home/takelau/c7w_sftp/ds248a/point/.gitignore",
+		"/home/takelau/c7w_sftp/ds248a/point/m_log.go",
+		"/home/takelau/c7w_sftp/ds248a/point/c_main.go",
+		"/home/takelau/c7w_sftp/namikot/tmpl/main_page.html",
+		"/home/takelau/c7w_sftp/namikot/tmpl/404.html",
+		"/home/takelau/c7w_sftp/namikot/m_log_auth.go",
+		"/home/takelau/c7w_sftp/namikot/m_sup.go",
+		"/home/takelau/c7w_sftp/namikot/m_fin.go",
+		"/home/takelau/c7w_sftp/namikot/c_dom.go",
+		"/home/takelau/c7w_sftp/namikot/c_main.go",
+		"/home/takelau/c7w_sftp/nami/main.go",
+		"/home/takelau/c7w_sftp/point/m_project.go",
+		"/home/takelau/c7w_sftp/namikot/m_project.go",
+		"/home/takelau/work/src/nami/main.go",
+		"/home/takelau/work/src/nami/test.go",
+		"/home/takelau/.config/sublime-text-3/Packages/User/Takelau.sublime-color-scheme",
+		"/home/takelau/.config/sublime-text-3/Packages/Color Scheme - Default/Breakers.sublime-color-scheme",
+		"/home/takelau/.config/sublime-text-3/Packages/Color Scheme - Legacy/Monokai Bright.tmTheme",
+		"/home/takelau/.config/sublime-text-3/Packages/Color Scheme - Default/Monokai.sublime-color-scheme",
+		"/home/takelau/.config/sublime-text-3/Packages/PackageResourceViewer/README.md",
+		"/home/takelau/.config/sublime-text-3/Packages/PackageResourceViewer/PackageResourceViewer.sublime-settings",
+		"/home/takelau/.config/sublime-text-3/Packages/golangconfig/.gitignore"
+	],
+	"find":
+	{
+		"height": 24.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"scrollbar_highlights": true,
+		"show_context": true,
+		"use_buffer2": true,
+		"use_gitignore": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "main.go",
+					"selected": true,
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1599,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1597,
+								1597
+							]
+						],
+						"settings":
+						{
+							"auto_complete_triggers":
+							[
+								{
+									"characters": "<",
+									"selector": "text.html, text.xml"
+								},
+								{
+									"rhs_empty": true,
+									"selector": "punctuation.accessor"
+								},
+								{
+									"characters": ".",
+									"selector": "meta.tag, source - comment - string.quoted.double.block - string.quoted.single.block - string.unquoted.heredoc",
+									"server": "gopls"
+								}
+							],
+							"lsp_active": true,
+							"lsp_hover_provider_count": 1,
+							"lsp_uri": "file:///vlm/c1/notify_go17/src/notify/main.go",
+							"show_definitions": false,
+							"syntax": "Packages/Go/Go.sublime-syntax",
+							"tab_size": 2
+						},
+						"translation.x": 0.0,
+						"translation.y": 128.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"stack_multiselect": false,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 24.0
+	},
+	"input":
+	{
+		"height": 36.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.diagnostics":
+	{
+		"height": 108.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"output.language servers":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "Packages/Golang Build/Go.sublime-build",
+	"project": "notify.sublime-project",
+	"replace":
+	{
+		"height": 44.0
+	},
+	"save_all_on_build": false,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"",
+				"pointer.sublime-project"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 160.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 592.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 275.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
