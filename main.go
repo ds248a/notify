@@ -113,6 +113,35 @@ func (n *Notify) addToInotify(path string) (int, error) {
 	return wd, nil
 }
 
+// removeFromInotify removes the given path from the inotify instance.
+func (n *Notify) removeFromInotify(wd int) error {
+	wd, err := unix.InotifyRmWatch(n.fd, uint32(wd))
+	if err != nil {
+		return fmt.Errorf("removing directory from inotify instance: %v", err)
+	}
+
+	return nil
+}
+
+// addDir checks if a directory isn't a match for any of w.ignoreRegExps and, if it isn't,
+// adds it to the tree and to the inotify instance and returns the added directory's wd.
+func (n *Notify) addDir(name string, parentWd int) (wd int, match bool, err error) {
+	dirPath := path.Join(n.tree.path(parentWd), name)
+
+	if n.matchPath(dirPath, true) {
+		return -1, true, nil
+	}
+
+	wd, err = n.addToInotify(dirPath)
+	if err != nil {
+		return -1, false, err
+	}
+
+	n.tree.add(wd, name, parentWd)
+
+	return wd, false, nil
+}
+
 // addDirsStartingAt adds every directory descendant of rootPath recursively to the tree and to the inotify instance.
 // This functions assumes that there's a node in the tree whose path is equal to cleanPath(rootPath).
 func (n *Notify) addDirsStartingAt(rootPath string) error {
@@ -146,25 +175,6 @@ func (n *Notify) addDirsStartingAt(rootPath string) error {
 	return nil
 }
 
-// addDir checks if a directory isn't a match for any of w.ignoreRegExps and, if it isn't,
-// adds it to the tree and to the inotify instance and returns the added directory's wd.
-func (n *Notify) addDir(name string, parentWd int) (wd int, match bool, err error) {
-	dirPath := path.Join(n.tree.path(parentWd), name)
-
-	if n.matchPath(dirPath, true) {
-		return -1, true, nil
-	}
-
-	wd, err = n.addToInotify(dirPath)
-	if err != nil {
-		return -1, false, err
-	}
-
-	n.tree.add(wd, name, parentWd)
-
-	return wd, false, nil
-}
-
 // matchPath returns whether the given path matchs any of w.ignoreRegExps.
 func (n *Notify) matchPath(path string, isDir bool) bool {
 	if isDir {
@@ -178,6 +188,21 @@ func (n *Notify) matchPath(path string, isDir bool) bool {
 	}
 
 	return false
+}
+
+// Events returns the events channel.
+func (n *Notify) Events() chan Event {
+	return n.events
+}
+
+// Errs returns the errors channel.
+func (n *Notify) Errs() chan error {
+	return n.errs
+}
+
+// Wait blocks until the watcher is closed.
+func (n *Notify) Wait() {
+	<-n.done
 }
 
 // Close closes the watcher.
