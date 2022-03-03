@@ -5,4 +5,5 @@
 *.out
 *.toml
 *.sublime-project
+*.sublime-workspace
 vendor/
