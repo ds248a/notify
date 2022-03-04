@@ -9,9 +9,9 @@ import (
 // Event is an event emitted by a watcher.
 type Event interface {
 	fmt.Stringer
-	WatcherEvent() string
 	IsDir() bool
 	Path() string
+	WatcherEvent() string
 }
 
 // ------------------------
@@ -22,6 +22,10 @@ type Event interface {
 type CreateEvent struct {
 	path  string
 	isDir bool
+}
+
+func (ce CreateEvent) String() string {
+	return ce.WatcherEvent()
 }
 
 // IsDir returns whether the event item is a directory.
@@ -41,10 +45,6 @@ func (ce CreateEvent) WatcherEvent() string {
 	return str
 }
 
-func (ce CreateEvent) String() string {
-	return ce.WatcherEvent()
-}
-
 // ------------------------
 //   DeleteEvent
 // ------------------------
@@ -53,6 +53,10 @@ func (ce CreateEvent) String() string {
 type DeleteEvent struct {
 	path  string
 	isDir bool
+}
+
+func (de DeleteEvent) String() string {
+	return de.WatcherEvent()
 }
 
 // IsDir returns whether the event item is a directory.
@@ -72,10 +76,6 @@ func (de DeleteEvent) WatcherEvent() string {
 	return str
 }
 
-func (de DeleteEvent) String() string {
-	return de.WatcherEvent()
-}
-
 // ------------------------
 //   ModifyEvent
 // ------------------------
@@ -83,6 +83,10 @@ func (de DeleteEvent) String() string {
 // ModifyEvent represents the modification of a file or directory.
 type ModifyEvent struct {
 	path string
+}
+
+func (me ModifyEvent) String() string {
+	return me.WatcherEvent()
 }
 
 // IsDir returns whether the event item is a directory.
@@ -102,20 +106,20 @@ func (me ModifyEvent) WatcherEvent() string {
 	return str
 }
 
-func (me ModifyEvent) String() string {
-	return me.WatcherEvent()
-}
-
 // ------------------------
 //   RenameEvent
 // ------------------------
 
 // RenameEvent represents the moving of a file or directory.
+// OldPath can be equal to "" if the old path is from an unwatched directory.
 type RenameEvent struct {
-	// OldPath can be equal to "" if the old path is from an unwatched directory.
 	OldPath string
 	path    string
 	isDir   bool
+}
+
+func (re RenameEvent) String() string {
+	return re.WatcherEvent()
 }
 
 // IsDir returns whether the event item is a directory.
@@ -143,10 +147,6 @@ func (re RenameEvent) WatcherEvent() string {
 	}
 
 	return str
-}
-
-func (re RenameEvent) String() string {
-	return re.WatcherEvent()
 }
 
 // ------------------------
@@ -182,6 +182,7 @@ type mvToEvent struct {
 	name     string
 }
 
+//
 func newMvEvents() *mvEvents {
 	return &mvEvents{
 		queue:  make(chan *mvEvent, 1),
@@ -190,6 +191,7 @@ func newMvEvents() *mvEvents {
 	}
 }
 
+//
 func (me *mvEvents) addMvFrom(cookie int, name string, parentWd int, isDir bool) {
 	done := make(chan struct{})
 
@@ -222,6 +224,7 @@ func (me *mvEvents) addMvFrom(cookie int, name string, parentWd int, isDir bool)
 	}()
 }
 
+//
 func (me *mvEvents) addMvTo(cookie int, name string, parentWd int, isDir bool) {
 	me.mx.Lock()
 	mvFrom := me.mvFrom[cookie]
@@ -252,6 +255,7 @@ func (me *mvEvents) addMvTo(cookie int, name string, parentWd int, isDir bool) {
 	}
 }
 
+//
 func (me *mvEvents) close() {
 	me.mx.Lock()
 	defer me.mx.Unlock()

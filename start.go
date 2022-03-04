@@ -33,8 +33,8 @@ func (n *Notify) startReading() {
 				return
 			}
 
-			previousNameLen := 0
-			for i := 0; i < k; i += int(unix.SizeofInotifyEvent + previousNameLen) {
+			prevNameLen := 0
+			for i := 0; i < k; i += int(unix.SizeofInotifyEvent + prevNameLen) {
 				select {
 				case <-n.done:
 					return
@@ -59,7 +59,7 @@ func (n *Notify) startReading() {
 					name,
 				}
 
-				previousNameLen = int(inotifyE.Len)
+				prevNameLen = int(inotifyE.Len)
 			}
 		}
 	}()
@@ -72,13 +72,13 @@ func (n *Notify) startReading() {
 			select {
 			case <-n.done:
 				return
+
 			case err := <-readingErr:
 				n.errs <- fmt.Errorf("reading from inotify instance's fd: %v", err)
-
 				return
+
 			case res := <-readingRes:
 				var e Event
-
 				parentDir := n.tree.get(int(res.inotifyE.Wd))
 				// this happens when an IN_IGNORED event about an already
 				// removed directory is received.
@@ -102,20 +102,19 @@ func (n *Notify) startReading() {
 				// removed from the inotify instance and the tree.
 				case res.inotifyE.Mask&unix.IN_IGNORED == unix.IN_IGNORED && n.tree.get(int(res.inotifyE.Wd)) == n.tree.root:
 					return
+
 				case res.inotifyE.Mask&unix.IN_CREATE == unix.IN_CREATE:
 					if isDir {
 						_, match, err := n.addDir(res.name, parentDir.wd)
 						if !match {
 							if err != nil {
 								n.errs <- err
-
 								return
 							}
 
 							err = n.addDirsStartingAt(fileOrDirPath)
 							if err != nil {
 								n.errs <- err
-
 								return
 							}
 						}
@@ -125,6 +124,7 @@ func (n *Notify) startReading() {
 						path:  fileOrDirPath,
 						isDir: isDir,
 					}
+
 				case res.inotifyE.Mask&unix.IN_DELETE == unix.IN_DELETE:
 					if isDir {
 						dir := n.tree.find(fileOrDirPath)
@@ -142,12 +142,15 @@ func (n *Notify) startReading() {
 						path:  fileOrDirPath,
 						isDir: isDir,
 					}
+
 				case res.inotifyE.Mask&unix.IN_CLOSE_WRITE == unix.IN_CLOSE_WRITE:
 					e = ModifyEvent{
 						path: fileOrDirPath,
 					}
+
 				case res.inotifyE.Mask&unix.IN_MOVED_FROM == unix.IN_MOVED_FROM:
 					n.mvEvents.addMvFrom(int(res.inotifyE.Cookie), res.name, int(res.inotifyE.Wd), isDir)
+
 				case res.inotifyE.Mask&unix.IN_MOVED_TO == unix.IN_MOVED_TO:
 					n.mvEvents.addMvTo(int(res.inotifyE.Cookie), res.name, int(res.inotifyE.Wd), isDir)
 				}
@@ -155,6 +158,7 @@ func (n *Notify) startReading() {
 				if e != nil {
 					n.events <- e
 				}
+
 			case mvEvent := <-n.mvEvents.queue:
 				var oldPath, newPath string
 
@@ -175,6 +179,7 @@ func (n *Notify) startReading() {
 					if mvEvent.isDir {
 						n.tree.mv(n.tree.find(oldPath).wd, mvEvent.newParentWd, mvEvent.newName)
 					}
+
 				case hasMvFrom:
 					oldPath = path.Join(
 						n.tree.path(mvEvent.oldParentWd),
@@ -184,6 +189,7 @@ func (n *Notify) startReading() {
 					if mvEvent.isDir {
 						n.tree.rm(n.tree.find(oldPath).wd)
 					}
+
 				case hasMvTo:
 					newPath = path.Join(
 						n.tree.path(mvEvent.newParentWd),
