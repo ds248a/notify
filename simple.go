@@ -1,4 +1,4 @@
-package main
+package notify
 
 import (
 	"bytes"
@@ -49,14 +49,19 @@ func simple() {
 			switch {
 			case e.Mask&unix.IN_CREATE == unix.IN_CREATE:
 				fmt.Printf("CREATE %v\n", name)
+
 			case e.Mask&unix.IN_DELETE == unix.IN_DELETE:
 				fmt.Printf("DELETE %v\n", name)
+
 			case e.Mask&unix.IN_CLOSE_WRITE == unix.IN_CLOSE_WRITE:
 				fmt.Printf("CLOSE_WRITE %v\n", name)
+
 			case e.Mask&unix.IN_MOVED_TO == unix.IN_MOVED_TO:
 				fmt.Printf("IN_MOVED_TO [%v] %v\n", e.Cookie, name)
+
 			case e.Mask&unix.IN_MOVED_FROM == unix.IN_MOVED_FROM:
 				fmt.Printf("IN_MOVED_FROM [%v] %v\n", e.Cookie, name)
+
 			case e.Mask&unix.IN_MOVE_SELF == unix.IN_MOVE_SELF:
 				fmt.Printf("IN_MOVE_SELF %v\n", name)
 			}

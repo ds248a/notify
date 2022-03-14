@@ -1,4 +1,4 @@
-package main
+package notify
 
 import (
 	"fmt"
@@ -10,6 +10,26 @@ import (
 	"strings"
 
 	"golang.org/x/sys/unix"
+)
+
+// sys/unix
+const (
+	IN_ACCESS = 0x1
+	IN_MODIFY = 0x2
+
+	IN_OPEN          = 0x20
+	IN_CLOSE         = 0x18
+	IN_CLOSE_NOWRITE = 0x10
+	IN_CLOSE_WRITE   = 0x8
+	IN_CREATE        = 0x100
+	IN_DELETE        = 0x200
+	IN_DELETE_SELF   = 0x400
+	IN_MOVE          = 0xc0
+	IN_MOVED_FROM    = 0x40
+	IN_MOVED_TO      = 0x80
+	IN_MOVE_SELF     = 0x800
+
+	IN_ISDIR = 0x40000000
 )
 
 //                       (0x10 + 0xff + 1) * 64 = 17408
