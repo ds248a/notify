@@ -1,4 +1,4 @@
-module notify
+module github.com/ds248a/notify
 
 go 1.17
 
