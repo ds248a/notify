@@ -56,9 +56,14 @@ type Notify struct {
 }
 
 func NewDirNotify(dirPath string, ignoreRegExps []*regexp.Regexp) (*Notify, error) {
+	if len(ignoreRegExps) == 0 {
+		ignoreRegExps = alwaysIgnoreRegExps
+	}
+
 	fd, err := unix.InotifyInit1(0)
 	if err != nil {
 		return nil, fmt.Errorf("creating inotify instance: %v", err)
+		// errors.New("exec: Stdout already set")
 	}
 
 	done := make(chan struct{})
@@ -354,7 +359,6 @@ func (wdt *watchDirsTree) path(wd int) string {
 //
 func (wdt *watchDirsTree) has(wd int) bool {
 	_, ok := wdt.items[wd]
-
 	return ok
 }
 

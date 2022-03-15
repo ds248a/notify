@@ -40,9 +40,7 @@ func (ce CreateEvent) Path() string {
 
 // WatcherEvent returns a string representation of the event.
 func (ce CreateEvent) WatcherEvent() string {
-	str := fmt.Sprintf("CREATE %v", ce.path)
-
-	return str
+	return fmt.Sprintf("CREATE %v", ce.path)
 }
 
 // ------------------------
@@ -71,9 +69,7 @@ func (de DeleteEvent) Path() string {
 
 // WatcherEvent returns a string representation of the event.
 func (de DeleteEvent) WatcherEvent() string {
-	str := fmt.Sprintf("DELETE %v", de.path)
-
-	return str
+	return fmt.Sprintf("DELETE %v", de.path)
 }
 
 // ------------------------
@@ -101,9 +97,7 @@ func (me ModifyEvent) Path() string {
 
 // WatcherEvent returns a string representation of the event.
 func (me ModifyEvent) WatcherEvent() string {
-	str := fmt.Sprintf("MODIFY %v", me.path)
-
-	return str
+	return fmt.Sprintf("MODIFY %v", me.path)
 }
 
 // ------------------------
