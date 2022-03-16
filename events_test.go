@@ -5,21 +5,22 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	// "path/filepath"
+
+	// "path/filepath"
 	"regexp"
 	"testing"
 	"time"
 )
 
 // ------------------------
-//   File Test
+//   Init
 // ------------------------
 
 var eventTimeout = time.Millisecond * 150
 
+// Creating a directory.
 func mkDirAll(t *testing.T) {
-	os.RemoveAll("a")
-	os.RemoveAll("f")
-
 	err := os.MkdirAll("a/b/c/d/e", os.ModeDir|os.ModePerm)
 	if err != nil {
 		t.Fatalf("unexpected error creating %v: %v", "a/b/c/d/e", err)
@@ -31,17 +32,48 @@ func mkDirAll(t *testing.T) {
 	}
 }
 
-func rmDirAll() {
-	os.RemoveAll("a")
-	os.RemoveAll("f")
+// Removing a directory.
+func rmDirAll(t *testing.T) {
+	if err := os.RemoveAll("a"); err != nil {
+		// t.Fatalf("removing dir error: %v", err)
+	}
+
+	if err := os.RemoveAll("f"); err != nil {
+		// t.Fatalf("removing dir error: %v", err)
+	}
+
+	<-time.After(100 * time.Millisecond)
+}
+
+// Creates the named file.
+func createFile(t *testing.T, filePath string) {
+	file, err := os.Create(filePath)
+	if err != nil {
+		t.Fatalf("error file creating %v: %v", filePath, err)
+	}
+
+	err = file.Close()
+	if err != nil {
+		t.Fatalf("error file close: %v", err)
+	}
 }
 
 //
+func mkDir(t *testing.T, dirPath string) {
+	if err := os.Mkdir(dirPath, os.ModeDir|os.ModePerm); err != nil {
+		t.Fatalf("unexpected error creating %v: %v", dirPath, err)
+	}
+}
+
+// ------------------------
+//   File Test
+// ------------------------
+
+//
 func TestWatcher_createEvent(t *testing.T) {
-	//
 	t.Run("create_file", func(t *testing.T) {
 		mkDirAll(t)
-		defer rmDirAll()
+		defer rmDirAll(t)
 
 		workingDir, err := os.Getwd()
 		if err != nil {
@@ -55,12 +87,9 @@ func TestWatcher_createEvent(t *testing.T) {
 		}
 		defer w.Close()
 
+		// new file
 		filePath := path.Join("a/b/c/d/e", "a.txt")
-		_, err = os.Create(filePath)
-		if err != nil {
-			t.Fatalf("unexpected error creating %v: %v", filePath, err)
-		}
-		defer os.Remove(filePath)
+		createFile(t, filePath)
 
 		expectedEvent := CreateEvent{
 			isDir: false,
@@ -84,7 +113,7 @@ func TestWatcher_createEvent(t *testing.T) {
 	//
 	t.Run("create_directory", func(t *testing.T) {
 		mkDirAll(t)
-		defer rmDirAll()
+		defer rmDirAll(t)
 
 		w, err := NewDirNotify(".", []*regexp.Regexp{})
 		expectedErr := error(nil)
@@ -93,11 +122,9 @@ func TestWatcher_createEvent(t *testing.T) {
 		}
 		defer w.Close()
 
+		// new dir
 		dirPath := path.Join("a/b/c/d/e", "z")
-		err = os.Mkdir(dirPath, os.ModeDir|os.ModePerm)
-		if err != nil {
-			t.Fatalf("unexpected error creating %v: %v", dirPath, err)
-		}
+		mkDir(t, dirPath)
 
 		expectedEvent := CreateEvent{
 			isDir: true,
@@ -117,11 +144,9 @@ func TestWatcher_createEvent(t *testing.T) {
 			t.Fatal("timeout reached waiting for event")
 		}
 
+		// new file
 		filePath := path.Join(dirPath, "a.txt")
-		_, err = os.Create(filePath)
-		if err != nil {
-			t.Fatalf("unexpected error creating %v: %v", filePath, err)
-		}
+		createFile(t, filePath)
 
 		expectedEvent = CreateEvent{
 			isDir: false,
@@ -143,9 +168,9 @@ func TestWatcher_createEvent(t *testing.T) {
 	})
 
 	//
-	t.Run("create_file_(regexp)", func(t *testing.T) {
+	t.Run("create_file_regexp", func(t *testing.T) {
 		mkDirAll(t)
-		defer rmDirAll()
+		defer rmDirAll(t)
 
 		w, err := NewDirNotify(".", []*regexp.Regexp{regexp.MustCompile("^a/b/c/d/e/a.txt$")})
 		expectedErr := error(nil)
@@ -154,12 +179,9 @@ func TestWatcher_createEvent(t *testing.T) {
 		}
 		defer w.Close()
 
+		// new file
 		filePath := path.Join("a/b/c/d/e", "a.txt")
-		_, err = os.Create(filePath)
-		if err != nil {
-			t.Fatalf("unexpected error creating %v: %v", filePath, err)
-		}
-		defer os.Remove(filePath)
+		createFile(t, filePath)
 
 		select {
 		case e := <-w.Events():
@@ -173,9 +195,9 @@ func TestWatcher_createEvent(t *testing.T) {
 	})
 
 	//
-	t.Run("create_directory_(regexp)", func(t *testing.T) {
+	t.Run("create_directory_regexp", func(t *testing.T) {
 		mkDirAll(t)
-		defer rmDirAll()
+		defer rmDirAll(t)
 
 		w, err := NewDirNotify(".", []*regexp.Regexp{regexp.MustCompile("^a/b/c/d/e*")})
 		expectedErr := error(nil)
@@ -184,8 +206,9 @@ func TestWatcher_createEvent(t *testing.T) {
 		}
 		defer w.Close()
 
+		// new dir
 		dirPath := path.Join("a/b/c/d/e", "z")
-		os.Mkdir(dirPath, os.ModeDir|os.ModePerm)
+		mkDir(t, dirPath)
 
 		select {
 		case e := <-w.Events():
@@ -197,11 +220,9 @@ func TestWatcher_createEvent(t *testing.T) {
 		case <-time.After(eventTimeout):
 		}
 
+		// new file
 		filePath := path.Join(dirPath, "a.txt")
-		_, err = os.Create(filePath)
-		if err != nil {
-			t.Fatalf("unexpected error creating %v: %v", filePath, err)
-		}
+		createFile(t, filePath)
 
 		select {
 		case e := <-w.Events():
@@ -220,12 +241,11 @@ func TestWatcher_deleteEvent(t *testing.T) {
 	//
 	t.Run("delete_file", func(t *testing.T) {
 		mkDirAll(t)
-		defer rmDirAll()
+		defer rmDirAll(t)
 
+		// new file
 		filePath := path.Join("a/b/c/d/e", "a.txt")
-		if _, err := os.Create(filePath); err != nil {
-			t.Fatalf("unexpected error creating %v: %v", filePath, err)
-		}
+		createFile(t, filePath)
 
 		w, err := NewDirNotify(".", []*regexp.Regexp{})
 		expectedErr := error(nil)
@@ -261,12 +281,14 @@ func TestWatcher_deleteEvent(t *testing.T) {
 	//
 	t.Run("delete_directory", func(t *testing.T) {
 		mkDirAll(t)
-		defer rmDirAll()
+		defer rmDirAll(t)
 
+		// new dir
 		dirPath := path.Join("a/b/c/d/e", "z")
-		os.Mkdir(dirPath, os.ModeDir|os.ModePerm)
+		mkDir(t, dirPath)
 
 		workingDir, err := os.Getwd()
+		fmt.Println("wd:", workingDir)
 		if err != nil {
 			t.Fatalf("unexpect err: %v", err)
 		}
@@ -300,19 +322,16 @@ func TestWatcher_deleteEvent(t *testing.T) {
 		case <-time.After(eventTimeout):
 			t.Fatal("timeout reached waiting for event")
 		}
-
-		fmt.Println("complie")
 	})
 
 	//
-	t.Run("delete_file_(regexp)", func(t *testing.T) {
+	t.Run("delete_file_regexp", func(t *testing.T) {
 		mkDirAll(t)
-		defer rmDirAll()
+		defer rmDirAll(t)
 
+		// new file
 		filePath := path.Join("f/g/h/i/j", "foo")
-		if _, err := os.Create(filePath); err != nil {
-			t.Fatalf("unexpected error creating %v: %v", filePath, err)
-		}
+		createFile(t, filePath)
 
 		w, err := NewDirNotify(".", []*regexp.Regexp{regexp.MustCompile("^" + filePath + "$")})
 		expectedErr := error(nil)
@@ -338,16 +357,15 @@ func TestWatcher_deleteEvent(t *testing.T) {
 	})
 
 	//
-	t.Run("delete_directory_(regexp)", func(t *testing.T) {
+	t.Run("delete_directory_regexp", func(t *testing.T) {
 		mkDirAll(t)
-		defer rmDirAll()
+		defer rmDirAll(t)
 
-		dirPath := path.Join("f/g/h/i/j", "foo")
-		if _, err := os.Create(dirPath); err != nil {
-			t.Fatalf("unexpected error creating %v: %v", dirPath, err)
-		}
+		// new dir
+		dirPath := path.Join("f/g/h/i/j", "m")
+		mkDir(t, dirPath)
 
-		w, err := NewDirNotify(".", []*regexp.Regexp{regexp.MustCompile("^" + dirPath + "$")})
+		w, err := NewDirNotify(".", []*regexp.Regexp{regexp.MustCompile("^" + dirPath)})
 		expectedErr := error(nil)
 		if err != expectedErr {
 			t.Fatalf("got %v, want %v", err, expectedErr)
@@ -368,8 +386,6 @@ func TestWatcher_deleteEvent(t *testing.T) {
 			t.Fatal("channel closed")
 		case <-time.After(eventTimeout):
 		}
-
-		fmt.Println("complite regexp")
 	})
 }
 
@@ -377,12 +393,11 @@ func TestWatcher_deleteEvent(t *testing.T) {
 func TestWatcher_modifyEvent(t *testing.T) {
 	t.Run("modify_file", func(t *testing.T) {
 		mkDirAll(t)
-		defer rmDirAll()
+		defer rmDirAll(t)
 
+		// new file
 		filePath := path.Join("a/b/c/d/e", "a.txt")
-		if _, err := os.Create(filePath); err != nil {
-			t.Fatalf("unexpected error creating %v: %v", filePath, err)
-		}
+		createFile(t, filePath)
 
 		workingDir, err := os.Getwd()
 		if err != nil {
@@ -396,6 +411,7 @@ func TestWatcher_modifyEvent(t *testing.T) {
 		}
 		defer w.Close()
 
+		// modify file
 		err = ioutil.WriteFile(filePath, []byte("foo"), os.ModePerm)
 		if err != nil {
 			t.Fatalf("unexpected error writing to %v: %v", filePath, err)
@@ -420,14 +436,13 @@ func TestWatcher_modifyEvent(t *testing.T) {
 	})
 
 	//
-	t.Run("modify_file_(regexp)", func(t *testing.T) {
+	t.Run("modify_file_regexp", func(t *testing.T) {
 		mkDirAll(t)
-		defer rmDirAll()
+		defer rmDirAll(t)
 
+		// new file
 		filePath := path.Join("a/b/c/d/e", "a.txt")
-		if _, err := os.Create(filePath); err != nil {
-			t.Fatalf("unexpected error creating %v: %v", filePath, err)
-		}
+		createFile(t, filePath)
 
 		w, err := NewDirNotify(".", []*regexp.Regexp{regexp.MustCompile("^" + filePath + "$")})
 		expectedErr := error(nil)
@@ -436,6 +451,7 @@ func TestWatcher_modifyEvent(t *testing.T) {
 		}
 		defer w.Close()
 
+		// modify file
 		err = ioutil.WriteFile(filePath, []byte("foo"), os.ModePerm)
 		if err != nil {
 			t.Fatalf("unexpected error writing to %v: %v", filePath, err)
@@ -453,25 +469,21 @@ func TestWatcher_modifyEvent(t *testing.T) {
 	})
 
 	//
-	t.Run("modify_file_(regexp)_(2)", func(t *testing.T) {
+	t.Run("modify_file_regexp_2", func(t *testing.T) {
+		defer rmDirAll(t)
+
 		filePath := "foobar"
-		_, err := os.Create(filePath)
-		if err != nil {
-			t.Fatalf("unexpected error creating %v: %v", filePath, err)
-		}
+		createFile(t, filePath)
 		defer os.Remove("foobar")
 
-		err = os.MkdirAll("a/foobar", os.ModeDir|os.ModePerm)
+		err := os.MkdirAll("a/foobar", os.ModeDir|os.ModePerm)
 		if err != nil {
-			t.Fatalf("unexpected error creating %v: %v", "a/b/c/d/e", err)
+			t.Fatalf("unexpected error creating %v: %v", "a/foobar", err)
 		}
 		defer os.RemoveAll("a")
 
 		file2Path := path.Join("a", "foobar", "b.txt")
-		_, err = os.Create(file2Path)
-		if err != nil {
-			t.Fatalf("unexpected error creating %v: %v", file2Path, err)
-		}
+		createFile(t, file2Path)
 
 		w, err := NewDirNotify(".", []*regexp.Regexp{regexp.MustCompile("foobar$")})
 		expectedErr := error(nil)
@@ -480,11 +492,13 @@ func TestWatcher_modifyEvent(t *testing.T) {
 		}
 		defer w.Close()
 
+		// modify 'foobar' file
 		err = ioutil.WriteFile(filePath, []byte("foo"), os.ModePerm)
 		if err != nil {
 			t.Fatalf("unexpected error writing to %v: %v", filePath, err)
 		}
 
+		// modify 'b.txt' file
 		err = ioutil.WriteFile(file2Path, []byte("foo"), os.ModePerm)
 		if err != nil {
 			t.Fatalf("unexpected error writing to %v: %v", file2Path, err)
@@ -514,14 +528,13 @@ func TestWatcher_renameEvent(t *testing.T) {
 	//
 	t.Run("rename file from a watched directory to a watched directory", func(t *testing.T) {
 		mkDirAll(t)
-		defer rmDirAll()
+		defer rmDirAll(t)
 
 		oldFilePath := path.Join("a/b/c/d/e", "a.txt")
 		newFilePath := path.Join("f/g/h/i/j", "b.txt")
 
-		if _, err := os.Create(oldFilePath); err != nil {
-			t.Fatalf("unexpected error creating %v: %v", oldFilePath, err)
-		}
+		// old file
+		createFile(t, oldFilePath)
 
 		w, err := NewDirNotify(".", []*regexp.Regexp{})
 		expectedErr := error(nil)
@@ -558,14 +571,13 @@ func TestWatcher_renameEvent(t *testing.T) {
 	//
 	t.Run("rename file from a watched directory to an unwatched directory", func(t *testing.T) {
 		mkDirAll(t)
-		defer rmDirAll()
+		defer rmDirAll(t)
 
 		oldFilePath := path.Join("a/b/c/d/e", "a.txt")
 		newFilePath := path.Join("f/g/h/i/j", "b.txt")
 
-		if _, err := os.Create(oldFilePath); err != nil {
-			t.Fatalf("unexpected error creating %v: %v", oldFilePath, err)
-		}
+		// old file
+		createFile(t, oldFilePath)
 
 		w, err := NewDirNotify(".", []*regexp.Regexp{regexp.MustCompile("^f.*")})
 		expectedErr := error(nil)
@@ -574,6 +586,7 @@ func TestWatcher_renameEvent(t *testing.T) {
 		}
 		defer w.Close()
 
+		// new file
 		err = os.Rename(oldFilePath, newFilePath)
 		if err != nil {
 			t.Fatalf("unexpected error renaming %v to %v: %v", oldFilePath, newFilePath, err)
@@ -602,14 +615,13 @@ func TestWatcher_renameEvent(t *testing.T) {
 	//
 	t.Run("rename file from an unwatched directory to a watched directory", func(t *testing.T) {
 		mkDirAll(t)
-		defer rmDirAll()
+		defer rmDirAll(t)
 
 		oldFilePath := path.Join("f/g/h/i/j", "b.txt")
 		newFilePath := path.Join("a/b/c/d/e", "a.txt")
 
-		if _, err := os.Create(oldFilePath); err != nil {
-			t.Fatalf("unexpected error creating %v: %v", oldFilePath, err)
-		}
+		// old file
+		createFile(t, oldFilePath)
 
 		workingDir, err := os.Getwd()
 		if err != nil {
@@ -623,6 +635,7 @@ func TestWatcher_renameEvent(t *testing.T) {
 		}
 		defer w.Close()
 
+		// new file
 		err = os.Rename(oldFilePath, newFilePath)
 		if err != nil {
 			t.Fatalf("unexpected error renaming %v to %v: %v", oldFilePath, newFilePath, err)
@@ -651,14 +664,13 @@ func TestWatcher_renameEvent(t *testing.T) {
 	//
 	t.Run("rename file from an unwatched directory to an unwatched directory", func(t *testing.T) {
 		mkDirAll(t)
-		defer rmDirAll()
+		defer rmDirAll(t)
 
 		oldFilePath := path.Join("f/g/h/i/j", "b.txt")
 		newFilePath := path.Join("a/b/c/d/e", "a.txt")
 
-		if _, err := os.Create(oldFilePath); err != nil {
-			t.Fatalf("unexpected error creating %v: %v", oldFilePath, err)
-		}
+		// old file
+		createFile(t, oldFilePath)
 
 		w, err := NewDirNotify(".", []*regexp.Regexp{
 			regexp.MustCompile("^f.*"),
@@ -670,6 +682,7 @@ func TestWatcher_renameEvent(t *testing.T) {
 		}
 		defer w.Close()
 
+		// new file
 		err = os.Rename(oldFilePath, newFilePath)
 		if err != nil {
 			t.Fatalf("unexpected error renaming %v to %v: %v", oldFilePath, newFilePath, err)
