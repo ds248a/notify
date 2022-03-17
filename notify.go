@@ -66,7 +66,6 @@ func NewDirNotify(dirPath string, ignoreRegExps []*regexp.Regexp) (*Notify, erro
 	fd, err := unix.InotifyInit1(0)
 	if err != nil {
 		return nil, fmt.Errorf("creating inotify instance: %v", err)
-		// errors.New("exec: Stdout already set")
 	}
 
 	done := make(chan struct{})
