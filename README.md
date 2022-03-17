@@ -1,6 +1,6 @@
-# notify - file system notifications 
+# notify
 
-## Отслеживание изменений в указанной директории
+## Отслеживание изменений в указанной директории и её подкаталогах
 
 ### NewDirNotify(dirPath string, ignoreRegExps []*regexp.Regexp) (*Notify, error)
 
