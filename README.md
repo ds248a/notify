@@ -1,53 +1,69 @@
 # notify - file system notifications 
 
-## Выполнение команд с подробным выводом ошибок исполнения
+## Отслеживание изменений в указанной директории с учетом её содржимого
 
-### func RunOut(cmdCtx context.Context, param []string) ([]byte, error)
-Возвращает + выводит в стандартный поток ввода результат выполнения команды,
-переданной в качестве аргумента param.
+### NewDirNotify(dirPath string, ignoreRegExps []*regexp.Regexp) (*Notify, error)
 
-### func Run(cmdCtx context.Context, param []string) ([]byte, error)
-Возвращает результат выполнения команды, переданной в качестве аргумента param.
+dirPath - указывает директирию изменения в которой следует отслеживать.
+Все вложенные файлы и каталоги подлежать отслеживанию;
 
-В случае не удачного выполнения команды, финкции Run() и RunOut() возвращают в параметре error копию результата
-вывода из стандартного потока ошибок. Смотрите пример ниже.
+ignoreRegExps - позволяет задать список игнорирования для содержимого переданной директории;
 
 ```go
 package main
 
 import (
-	"context"
 	"fmt"
-	"time"
+	"log"
+	"os"
+	"os/signal"
+	"regexp"
+	"syscall"
 
-	"github.com/ds248a/cmd"
+	"github.com/ds248a/notify"
 )
 
-func main() {
-	ctx, close := context.WithTimeout(context.Background(), time.Duration(1)*time.Second)
-	defer close()
-
-	out, err := cmd.Run(ctx, []string{"ls", "-!", "."})
-	fmt.Printf("err: %v\n", err)
-	fmt.Printf("out: %s\n", string(out))
-/*
-err: ls: invalid option -- '!'
-Try 'ls --help' for more information.
-
-out:
-*/
-
-	out, err := cmd.RunOut(ctx, []string{"ls", "-!", "."})
-	fmt.Printf("err: %v\n", err)
-	fmt.Printf("out: %s\n", string(out))
-/*
-ls: invalid option -- '!'
-Try 'ls --help' for more information.
-
-err: ls: invalid option -- '!'
-Try 'ls --help' for more information.
-
-out: 
-*/
+// Cписок игнорирования.
+var ignoreRegExps = []*regexp.Regexp{
+	regexp.MustCompile("^vendor"),
 }
+
+func NewNotify() {
+	// обработка прерываний
+	deadlySignals := make(chan os.Signal, 1)
+	signal.Notify(deadlySignals, os.Interrupt, syscall.SIGTERM)
+
+	// обработчик изменений файловой системы
+	n, err := notify.NewDirNotify(".", ignoreRegExps)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for {
+		select {
+		case <-deadlySignals:
+			return
+		case err := <-n.Errs():
+			fmt.Printf("watcher: %+v \n", err)
+			return
+		case e := <-n.Events():
+			fmt.Printf("event: %#v \n", e)
+		}
+	}
+}
+
+/*
+regexp.MustCompile("^vendor") - // приводит к игнорированию действий в каталоге './vendor'
+
+event: notify.CreateEvent{path:"a", isDir:true}                    - new folder './a'
+event: notify.CreateEvent{path:"a/b", isDir:true}                  - new folder './a/b'
+event: notify.RenameEvent{OldPath:"a/b", path:"a/d", isDir:true}   - rename folder 'b' to 'd'
+event: notify.DeleteEvent{path:"a/c", isDir:true}                  - delete folder './a/c'
+
+event: notify.ModifyEvent{path:"a/a1.txt"}                                     - new or edit file
+event: notify.RenameEvent{OldPath:"a/a1.txt", path:"a/a2.txt", isDir:false}    - rename file
+event: notify.RenameEvent{OldPath:"a/a2.txt", path:"a/d/a2.txt", isDir:false}  - move file
+event: notify.RenameEvent{OldPath:"a/d/a2.txt", path:"a/d.txt", isDir:false}   - rename && move file
+event: notify.DeleteEvent{path:"a/d.txt", isDir:false}                         - delete file
+*/
 ```

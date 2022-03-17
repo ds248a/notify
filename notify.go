@@ -55,6 +55,9 @@ type Notify struct {
 	mvEvents      *mvEvents
 }
 
+// NewDirNotify listens for changes in the specified directory.
+// ignoreRegExps may contain a list of directories whose contents should be ignored.
+// It can be either files or directories.
 func NewDirNotify(dirPath string, ignoreRegExps []*regexp.Regexp) (*Notify, error) {
 	if len(ignoreRegExps) == 0 {
 		ignoreRegExps = alwaysIgnoreRegExps
