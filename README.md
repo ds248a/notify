@@ -58,7 +58,7 @@ regexp.MustCompile("^vendor") - // приводит к игнорировани�
 event: notify.CreateEvent{path:"a", isDir:true}                    - new folder './a'
 event: notify.CreateEvent{path:"a/b", isDir:true}                  - new folder './a/b'
 event: notify.RenameEvent{OldPath:"a/b", path:"a/d", isDir:true}   - rename folder 'b' to 'd'
-event: notify.DeleteEvent{path:"a/c", isDir:true}                  - delete folder './a/c'
+event: notify.DeleteEvent{path:"a/b", isDir:true}                  - delete folder './a/b'
 
 event: notify.ModifyEvent{path:"a/a1.txt"}                                     - new or edit file
 event: notify.RenameEvent{OldPath:"a/a1.txt", path:"a/a2.txt", isDir:false}    - rename file
