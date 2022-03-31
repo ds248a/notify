@@ -1,9 +1,5 @@
 # Binaries for programs and plugins
 *~
-*.so
-*.test
-*.out
-*.toml
-*.sublime-project
-*.sublime-workspace
+*.sublime*
+.git/
 vendor/

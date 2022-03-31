@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"sync"
 
 	"golang.org/x/sys/unix"
 )
@@ -53,6 +54,7 @@ type Notify struct {
 	events        chan Event
 	errs          chan error
 	mvEvents      *mvEvents
+	mx            sync.RWMutex
 }
 
 // NewDirNotify listens for changes in the specified directory.
@@ -91,7 +93,7 @@ func NewDirNotify(dirPath string, ignoreRegExps []*regexp.Regexp) (*Notify, erro
 	n.errs = make(chan error)
 	n.mvEvents = newMvEvents()
 
-	n.startReading()
+	n.run()
 
 	return n, nil
 }
@@ -182,11 +184,17 @@ func (n *Notify) matchPath(path string, isDir bool) bool {
 
 // Events returns the events channel.
 func (n *Notify) Events() chan Event {
+	n.mx.RLock()
+	defer n.mx.RUnlock()
+
 	return n.events
 }
 
 // Errs returns the errors channel.
 func (n *Notify) Errs() chan error {
+	n.mx.RLock()
+	defer n.mx.RUnlock()
+
 	return n.errs
 }
 
@@ -201,6 +209,9 @@ func (n *Notify) Close() error {
 	if n.closed {
 		return nil
 	}
+
+	n.mx.Lock()
+	defer n.mx.Unlock()
 
 	n.closed = true
 	err := unix.Close(n.fd)
@@ -223,12 +234,14 @@ type watchDir struct {
 	name     string
 	parent   *watchDir
 	children map[string]*watchDir
+	mx       sync.RWMutex
 }
 
 type watchDirsTree struct {
 	root  *watchDir
 	items map[int]*watchDir
 	cache *watchDirsTreeCache
+	mx    sync.RWMutex
 }
 
 //
@@ -237,6 +250,35 @@ func newWatchDirsTree() *watchDirsTree {
 		items: map[int]*watchDir{},
 		cache: newWatchDirsTreeCache(),
 	}
+}
+
+//
+func (wd *watchDir) getChild(name string) *watchDir {
+	wd.mx.RLock()
+	defer wd.mx.RUnlock()
+
+	return wd.children[name]
+}
+
+//
+func (wd *watchDir) rmChild(name string) {
+	wd.mx.Lock()
+	defer wd.mx.Unlock()
+
+	delete(wd.children, name)
+}
+
+//
+func (wd *watchDir) addChild(name string) {
+
+}
+
+//
+func (wdt *watchDirsTree) getRoot() *watchDir {
+	wdt.mx.RLock()
+	defer wdt.mx.RUnlock()
+
+	return wdt.root
 }
 
 //
@@ -251,13 +293,16 @@ func (wdt *watchDirsTree) setRoot(path string, wd int) {
 		children: map[string]*watchDir{},
 	}
 
+	wdt.mx.Lock()
+	defer wdt.mx.Unlock()
+
 	wdt.root = d
 	wdt.items[d.wd] = d
 }
 
 //
 func (wdt *watchDirsTree) add(wd int, name string, parentWd int) {
-	parent := wdt.items[parentWd]
+	parent := wdt.get(parentWd)
 	if parent == nil {
 		panic("parent not found")
 	}
@@ -269,18 +314,26 @@ func (wdt *watchDirsTree) add(wd int, name string, parentWd int) {
 		children: map[string]*watchDir{},
 	}
 
-	wdt.items[d.wd] = d
+	d.parent.mx.Lock()
 	d.parent.children[d.name] = d
+	d.parent.mx.Unlock()
+
+	wdt.mx.Lock()
+	wdt.items[d.wd] = d
+	wdt.mx.Unlock()
 }
 
 //
 func (wdt *watchDirsTree) get(wd int) *watchDir {
+	wdt.mx.RLock()
+	defer wdt.mx.RUnlock()
+
 	return wdt.items[wd]
 }
 
 //
 func (wdt *watchDirsTree) rm(wd int) {
-	item := wdt.items[wd]
+	item := wdt.get(wd)
 
 	if item == nil {
 		return
@@ -290,13 +343,18 @@ func (wdt *watchDirsTree) rm(wd int) {
 		panic("cannot remove root")
 	}
 
-	delete(item.parent.children, item.name)
+	// delete(item.parent.children, item.name)
+	item.parent.rmChild(item.name)
 
 	for _, child := range item.children {
 		wdt.rm(child.wd)
 	}
 
 	wdt.invalidate(wd)
+
+	wdt.mx.Lock()
+	defer wdt.mx.Unlock()
+
 	delete(wdt.items, item.wd)
 }
 
@@ -321,18 +379,25 @@ func (wdt *watchDirsTree) mv(wd, newParentWd int, name string) {
 		panic("newParent not found")
 	}
 
-	if name != "" && name != item.name {
-		delete(item.parent.children, item.name)
-		item.name = name
+	item.mx.Lock()
 
+	if name != "" && name != item.name {
+		// delete(item.parent.children, item.name)
+		item.parent.rmChild(item.name)
+
+		item.name = name
 		item.parent.children[name] = item
 	}
 
 	if newParentWd != item.parent.wd {
-		delete(item.parent.children, item.name)
+		// delete(item.parent.children, item.name)
+		item.parent.rmChild(item.name)
+
 		newParent.children[item.name] = item
 		item.parent = newParent
 	}
+
+	item.mx.Unlock()
 
 	wdt.invalidate(wd)
 }
@@ -354,12 +419,14 @@ func (wdt *watchDirsTree) path(wd int) string {
 	}
 
 	path, _ := wdt.cache.path(wd)
-
 	return path
 }
 
 //
 func (wdt *watchDirsTree) has(wd int) bool {
+	wdt.mx.RLock()
+	defer wdt.mx.RUnlock()
+
 	_, ok := wdt.items[wd]
 	return ok
 }
@@ -379,9 +446,10 @@ func (wdt *watchDirsTree) find(path string) *watchDir {
 		pathWithoutRoot := strings.TrimPrefix(path, wdt.root.name+"/")
 		pathSegments := strings.Split(pathWithoutRoot, string(filepath.Separator))
 
-		parent := wdt.root
+		parent := wdt.getRoot()
 		for _, pathSegment := range pathSegments {
-			d := parent.children[pathSegment]
+			// d := parent.children[pathSegment]
+			d := parent.getChild(pathSegment)
 			if d == nil {
 				return nil
 			}
@@ -427,6 +495,7 @@ func cleanPath(p string) string {
 type watchDirsTreeCache struct {
 	pathByWd map[int]string
 	wdByPath map[string]int
+	mx       sync.RWMutex
 }
 
 //
@@ -439,14 +508,19 @@ func newWatchDirsTreeCache() *watchDirsTreeCache {
 
 //
 func (wdtc *watchDirsTreeCache) add(wd int, path string) {
+	wdtc.mx.Lock()
+	defer wdtc.mx.Unlock()
+
 	wdtc.pathByWd[wd] = path
 	wdtc.wdByPath[path] = wd
 }
 
 //
 func (wdtc *watchDirsTreeCache) path(wd int) (string, bool) {
-	path, ok := wdtc.pathByWd[wd]
+	wdtc.mx.RLock()
+	defer wdtc.mx.RUnlock()
 
+	path, ok := wdtc.pathByWd[wd]
 	return path, ok
 }
 
@@ -457,14 +531,19 @@ func (wdtc *watchDirsTreeCache) rmByPath(path string) {
 		return
 	}
 
+	wdtc.mx.Lock()
+	defer wdtc.mx.Unlock()
+
 	delete(wdtc.pathByWd, wd)
 	delete(wdtc.wdByPath, path)
 }
 
 //
 func (wdtc *watchDirsTreeCache) wd(path string) (int, bool) {
-	wd, ok := wdtc.wdByPath[path]
+	wdtc.mx.RLock()
+	defer wdtc.mx.RUnlock()
 
+	wd, ok := wdtc.wdByPath[path]
 	return wd, ok
 }
 
@@ -474,6 +553,9 @@ func (wdtc *watchDirsTreeCache) rmByWd(wd int) {
 	if !ok {
 		return
 	}
+
+	wdtc.mx.Lock()
+	defer wdtc.mx.Unlock()
 
 	delete(wdtc.pathByWd, wd)
 	delete(wdtc.wdByPath, path)

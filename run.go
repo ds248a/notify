@@ -9,14 +9,14 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-func (n *Notify) startReading() {
+func (n *Notify) run() {
 	readingErr := make(chan error)
 	readingRes := make(chan struct {
 		inotifyE unix.InotifyEvent
 		name     string
 	})
 
-	// reading from inotify instance's fd
+	// reading from notify instance's fd
 	go func() {
 		buff := [eventsBufferSize]byte{}
 
@@ -80,8 +80,7 @@ func (n *Notify) startReading() {
 			case res := <-readingRes:
 				var e Event
 				parentDir := n.tree.get(int(res.inotifyE.Wd))
-				// this happens when an IN_IGNORED event about an already
-				// removed directory is received.
+				// this happens when an IN_IGNORED event about an already removed directory is received.
 				if parentDir == nil {
 					continue
 				}
@@ -95,11 +94,9 @@ func (n *Notify) startReading() {
 				}
 
 				switch {
-				// this event is only handled if it is from the root,
-				// since, if it is from any other directory, it means
-				// that this directory's parent has already received
-				// an IN_DELETE event and the directory's been already
-				// removed from the inotify instance and the tree.
+				// this event is only handled if it is from the root, since, if it is from any other directory,
+				// it means that this directory's parent has already received an IN_DELETE event
+				// and the directory's been already removed from the inotify instance and the tree.
 				case res.inotifyE.Mask&unix.IN_IGNORED == unix.IN_IGNORED && n.tree.get(int(res.inotifyE.Wd)) == n.tree.root:
 					return
 

@@ -30,7 +30,7 @@ func TestWatchDirsTreeSetRoot(t *testing.T) {
 }
 
 // Добавление каталога.
-func TestWatchedDirsTreeAddHasGet(t *testing.T) {
+func TestWatchDirsTreeAddHasGet(t *testing.T) {
 	wdt := newWatchDirsTree()
 	wdt.setRoot(".", 0)
 
@@ -111,7 +111,7 @@ func TestWatchDirsTreeRmHasGet_child(t *testing.T) {
 }
 
 // Манипуляции с каталогами.
-func TestWatchedDirsTreeMvInvalidate(t *testing.T) {
+func TestWatchDirsTreeMvInvalidate(t *testing.T) {
 	// перемещение
 	t.Run("only parent", func(t *testing.T) {
 		wdt := newWatchDirsTree()
