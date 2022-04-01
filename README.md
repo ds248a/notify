@@ -28,9 +28,8 @@ var ignoreRegExps = []*regexp.Regexp{
 	regexp.MustCompile("^vendor"),
 }
 
-func NewNotify() {
-	
-	// interrupt handling 
+func main() {
+	// interrupt handling
 	deadlySignals := make(chan os.Signal, 1)
 	signal.Notify(deadlySignals, os.Interrupt, syscall.SIGTERM)
 
