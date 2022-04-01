@@ -4,11 +4,9 @@
 
 ### NewDirNotify(dirPath string, ignoreRegExps []*regexp.Regexp) (*Notify, error)
 
-dirPath - specifies the directory for changes to be tracked.
-All attached files and directories are added to the watchlist.
+dirPath - specifies the directory for changes to be tracked. All attached files and directories are added to the watchlist.
 
-ignoreRegExps - defines an ignore list.
-They can be both files and directories. 
+ignoreRegExps - defines an ignore list. They can be both files and directories. 
 
 
 ```go
