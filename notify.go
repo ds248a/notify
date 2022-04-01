@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
-	"sync"
+	// "sync"
 
 	"golang.org/x/sys/unix"
 )
@@ -54,7 +54,6 @@ type Notify struct {
 	events        chan Event
 	errs          chan error
 	mvEvents      *mvEvents
-	mx            sync.RWMutex
 }
 
 // NewDirNotify listens for changes in the specified directory.
@@ -184,17 +183,11 @@ func (n *Notify) matchPath(path string, isDir bool) bool {
 
 // Events returns the events channel.
 func (n *Notify) Events() chan Event {
-	n.mx.RLock()
-	defer n.mx.RUnlock()
-
 	return n.events
 }
 
 // Errs returns the errors channel.
 func (n *Notify) Errs() chan error {
-	n.mx.RLock()
-	defer n.mx.RUnlock()
-
 	return n.errs
 }
 
@@ -209,9 +202,6 @@ func (n *Notify) Close() error {
 	if n.closed {
 		return nil
 	}
-
-	n.mx.Lock()
-	defer n.mx.Unlock()
 
 	n.closed = true
 	err := unix.Close(n.fd)
@@ -234,14 +224,12 @@ type watchDir struct {
 	name     string
 	parent   *watchDir
 	children map[string]*watchDir
-	mx       sync.RWMutex
 }
 
 type watchDirsTree struct {
 	root  *watchDir
 	items map[int]*watchDir
 	cache *watchDirsTreeCache
-	mx    sync.RWMutex
 }
 
 //
@@ -254,17 +242,11 @@ func newWatchDirsTree() *watchDirsTree {
 
 //
 func (wd *watchDir) getChild(name string) *watchDir {
-	wd.mx.RLock()
-	defer wd.mx.RUnlock()
-
 	return wd.children[name]
 }
 
 //
 func (wd *watchDir) rmChild(name string) {
-	wd.mx.Lock()
-	defer wd.mx.Unlock()
-
 	delete(wd.children, name)
 }
 
@@ -275,9 +257,6 @@ func (wd *watchDir) addChild(name string) {
 
 //
 func (wdt *watchDirsTree) getRoot() *watchDir {
-	wdt.mx.RLock()
-	defer wdt.mx.RUnlock()
-
 	return wdt.root
 }
 
@@ -292,9 +271,6 @@ func (wdt *watchDirsTree) setRoot(path string, wd int) {
 		name:     cleanPath(path),
 		children: map[string]*watchDir{},
 	}
-
-	wdt.mx.Lock()
-	defer wdt.mx.Unlock()
 
 	wdt.root = d
 	wdt.items[d.wd] = d
@@ -314,20 +290,12 @@ func (wdt *watchDirsTree) add(wd int, name string, parentWd int) {
 		children: map[string]*watchDir{},
 	}
 
-	d.parent.mx.Lock()
 	d.parent.children[d.name] = d
-	d.parent.mx.Unlock()
-
-	wdt.mx.Lock()
 	wdt.items[d.wd] = d
-	wdt.mx.Unlock()
 }
 
 //
 func (wdt *watchDirsTree) get(wd int) *watchDir {
-	wdt.mx.RLock()
-	defer wdt.mx.RUnlock()
-
 	return wdt.items[wd]
 }
 
@@ -351,9 +319,6 @@ func (wdt *watchDirsTree) rm(wd int) {
 	}
 
 	wdt.invalidate(wd)
-
-	wdt.mx.Lock()
-	defer wdt.mx.Unlock()
 
 	delete(wdt.items, item.wd)
 }
@@ -379,8 +344,6 @@ func (wdt *watchDirsTree) mv(wd, newParentWd int, name string) {
 		panic("newParent not found")
 	}
 
-	item.mx.Lock()
-
 	if name != "" && name != item.name {
 		// delete(item.parent.children, item.name)
 		item.parent.rmChild(item.name)
@@ -396,8 +359,6 @@ func (wdt *watchDirsTree) mv(wd, newParentWd int, name string) {
 		newParent.children[item.name] = item
 		item.parent = newParent
 	}
-
-	item.mx.Unlock()
 
 	wdt.invalidate(wd)
 }
@@ -424,9 +385,6 @@ func (wdt *watchDirsTree) path(wd int) string {
 
 //
 func (wdt *watchDirsTree) has(wd int) bool {
-	wdt.mx.RLock()
-	defer wdt.mx.RUnlock()
-
 	_, ok := wdt.items[wd]
 	return ok
 }
@@ -495,7 +453,6 @@ func cleanPath(p string) string {
 type watchDirsTreeCache struct {
 	pathByWd map[int]string
 	wdByPath map[string]int
-	mx       sync.RWMutex
 }
 
 //
@@ -508,18 +465,12 @@ func newWatchDirsTreeCache() *watchDirsTreeCache {
 
 //
 func (wdtc *watchDirsTreeCache) add(wd int, path string) {
-	wdtc.mx.Lock()
-	defer wdtc.mx.Unlock()
-
 	wdtc.pathByWd[wd] = path
 	wdtc.wdByPath[path] = wd
 }
 
 //
 func (wdtc *watchDirsTreeCache) path(wd int) (string, bool) {
-	wdtc.mx.RLock()
-	defer wdtc.mx.RUnlock()
-
 	path, ok := wdtc.pathByWd[wd]
 	return path, ok
 }
@@ -531,18 +482,12 @@ func (wdtc *watchDirsTreeCache) rmByPath(path string) {
 		return
 	}
 
-	wdtc.mx.Lock()
-	defer wdtc.mx.Unlock()
-
 	delete(wdtc.pathByWd, wd)
 	delete(wdtc.wdByPath, path)
 }
 
 //
 func (wdtc *watchDirsTreeCache) wd(path string) (int, bool) {
-	wdtc.mx.RLock()
-	defer wdtc.mx.RUnlock()
-
 	wd, ok := wdtc.wdByPath[path]
 	return wd, ok
 }
@@ -553,9 +498,6 @@ func (wdtc *watchDirsTreeCache) rmByWd(wd int) {
 	if !ok {
 		return
 	}
-
-	wdtc.mx.Lock()
-	defer wdtc.mx.Unlock()
 
 	delete(wdtc.pathByWd, wd)
 	delete(wdtc.wdByPath, path)
