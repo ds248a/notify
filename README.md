@@ -1,13 +1,15 @@
 # notify
 
-## Отслеживание изменений в указанной директории и её подкаталогах
+## Tracking changes in the specified directory and its subdirectories
 
 ### NewDirNotify(dirPath string, ignoreRegExps []*regexp.Regexp) (*Notify, error)
 
-dirPath - указывает директирию изменения в которой следует отслеживать.
-Все вложенные файлы и каталоги добавляются в список отслеживания.
+dirPath - specifies the directory for changes to be tracked.
+All attached files and directories are added to the watchlist.
 
-ignoreRegExps - позволяет для переданной директории задать исключения для формирования списка отслеживаний.
+ignoreRegExps - defines an ignore list.
+They can be both files and directories. 
+
 
 ```go
 package main
@@ -23,17 +25,18 @@ import (
 	"github.com/ds248a/notify"
 )
 
-// Cписок игнорирования.
+// ignore list
 var ignoreRegExps = []*regexp.Regexp{
 	regexp.MustCompile("^vendor"),
 }
 
 func NewNotify() {
-	// обработка прерываний
+	
+	// interrupt handling 
 	deadlySignals := make(chan os.Signal, 1)
 	signal.Notify(deadlySignals, os.Interrupt, syscall.SIGTERM)
 
-	// обработчик изменений файловой системы
+	// filesystem change handler
 	n, err := notify.NewDirNotify(".", ignoreRegExps)
 	if err != nil {
 		log.Fatal(err)
@@ -44,17 +47,15 @@ func NewNotify() {
 		case <-deadlySignals:
 			return
 		case err := <-n.Errs():
-			fmt.Printf("watcher: %+v \n", err)
+			fmt.Printf("watcher: %+v\n", err)
 			return
 		case e := <-n.Events():
-			fmt.Printf("event: %#v \n", e)
+			fmt.Printf("event: %#v\n", e)
 		}
 	}
 }
 
 /*
-regexp.MustCompile("^vendor") - // приводит к игнорированию действий в каталоге './vendor'
-
 event: notify.CreateEvent{path:"a", isDir:true}                    - new folder './a'
 event: notify.CreateEvent{path:"a/b", isDir:true}                  - new folder './a/b'
 event: notify.RenameEvent{OldPath:"a/b", path:"a/d", isDir:true}   - rename folder 'b' to 'd'
