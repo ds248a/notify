@@ -1,6 +1,6 @@
 # notify
 
-## Tracking changes in the specified directory and its subdirectories
+Tracking changes in the specified directory and its subdirectories
 
 ### NewDirNotify(dirPath string, ignoreRegExps []*regexp.Regexp) (*Notify, error)
 
