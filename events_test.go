@@ -1,13 +1,10 @@
 package notify
 
 import (
-	"fmt"
+	// "fmt"
 	"io/ioutil"
 	"os"
 	"path"
-	// "path/filepath"
-
-	// "path/filepath"
 	"regexp"
 	"testing"
 	"time"
@@ -35,11 +32,11 @@ func mkDirAll(t *testing.T) {
 // Removing a directory.
 func rmDirAll(t *testing.T) {
 	if err := os.RemoveAll("a"); err != nil {
-		// t.Fatalf("removing dir error: %v", err)
+		t.Fatalf("removing dir error: %v", err)
 	}
 
 	if err := os.RemoveAll("f"); err != nil {
-		// t.Fatalf("removing dir error: %v", err)
+		t.Fatalf("removing dir error: %v", err)
 	}
 
 	<-time.After(100 * time.Millisecond)
@@ -288,7 +285,6 @@ func TestWatcher_deleteEvent(t *testing.T) {
 		mkDir(t, dirPath)
 
 		workingDir, err := os.Getwd()
-		fmt.Println("wd:", workingDir)
 		if err != nil {
 			t.Fatalf("unexpect err: %v", err)
 		}
@@ -551,7 +547,7 @@ func TestWatcher_renameEvent(t *testing.T) {
 		expectedEvent := RenameEvent{
 			isDir:   false,
 			path:    newFilePath,
-			OldPath: oldFilePath,
+			oldPath: oldFilePath,
 		}
 
 		select {
@@ -595,7 +591,7 @@ func TestWatcher_renameEvent(t *testing.T) {
 		expectedEvent := RenameEvent{
 			isDir:   false,
 			path:    "",
-			OldPath: oldFilePath,
+			oldPath: oldFilePath,
 		}
 
 		select {
@@ -623,12 +619,7 @@ func TestWatcher_renameEvent(t *testing.T) {
 		// old file
 		createFile(t, oldFilePath)
 
-		workingDir, err := os.Getwd()
-		if err != nil {
-			t.Fatalf("unexpect err: %v", err)
-		}
-
-		w, err := NewDirNotify(workingDir, []*regexp.Regexp{regexp.MustCompile("^" + workingDir + "/f.*")})
+		w, err := NewDirNotify(".", []*regexp.Regexp{regexp.MustCompile("^f.*")})
 		expectedErr := error(nil)
 		if err != expectedErr {
 			t.Fatalf("got %v, want %v", err, expectedErr)
@@ -643,8 +634,8 @@ func TestWatcher_renameEvent(t *testing.T) {
 
 		expectedEvent := RenameEvent{
 			isDir:   false,
-			path:    path.Join(workingDir, newFilePath),
-			OldPath: "",
+			path:    newFilePath,
+			oldPath: "",
 		}
 
 		select {

@@ -40,7 +40,7 @@ func (ce CreateEvent) Path() string {
 
 // WatcherEvent returns a string representation of the event.
 func (ce CreateEvent) WatcherEvent() string {
-	return fmt.Sprintf("CREATE %v", ce.path)
+	return fmt.Sprintf("CREATE %v", ce.Path())
 }
 
 // ------------------------
@@ -69,7 +69,7 @@ func (de DeleteEvent) Path() string {
 
 // WatcherEvent returns a string representation of the event.
 func (de DeleteEvent) WatcherEvent() string {
-	return fmt.Sprintf("DELETE %v", de.path)
+	return fmt.Sprintf("DELETE %v", de.Path())
 }
 
 // ------------------------
@@ -97,7 +97,7 @@ func (me ModifyEvent) Path() string {
 
 // WatcherEvent returns a string representation of the event.
 func (me ModifyEvent) WatcherEvent() string {
-	return fmt.Sprintf("MODIFY %v", me.path)
+	return fmt.Sprintf("MODIFY %v", me.Path())
 }
 
 // ------------------------
@@ -107,7 +107,7 @@ func (me ModifyEvent) WatcherEvent() string {
 // RenameEvent represents the moving of a file or directory.
 // OldPath can be equal to "" if the old path is from an unwatched directory.
 type RenameEvent struct {
-	OldPath string
+	oldPath string
 	path    string
 	isDir   bool
 }
@@ -127,17 +127,24 @@ func (re RenameEvent) Path() string {
 	return re.path
 }
 
+func (re RenameEvent) OldPath() string {
+	return re.oldPath
+}
+
 // WatcherEvent returns a string representation of the event.
 func (re RenameEvent) WatcherEvent() string {
 	var str string
 
+	path := re.Path()
+	oldPath := re.OldPath()
+
 	switch {
-	case re.OldPath != "" && re.path != "":
-		str = fmt.Sprintf("RENAME %v to %v", re.OldPath, re.path)
-	case re.OldPath != "":
-		str = fmt.Sprintf("RENAME %v", re.OldPath)
-	case re.path != "":
-		str = fmt.Sprintf("RENAME to %v", re.path)
+	case oldPath != "" && path != "":
+		str = fmt.Sprintf("RENAME %v to %v", oldPath, path)
+	case oldPath != "":
+		str = fmt.Sprintf("RENAME %v", oldPath)
+	case path != "":
+		str = fmt.Sprintf("RENAME to %v", path)
 	}
 
 	return str
@@ -156,7 +163,7 @@ type mvEvent struct {
 }
 
 type mvEvents struct {
-	mx     sync.Mutex
+	mx     sync.RWMutex
 	mvFrom map[int]*mvFromEvent
 	queue  chan *mvEvent
 	done   chan struct{}
@@ -211,24 +218,16 @@ func (me *mvEvents) addMvFrom(cookie int, name string, parentWd int, isDir bool)
 				isDir:       isDir,
 			}
 		}
-
-		me.mx.Lock()
-		delete(me.mvFrom, cookie)
-		me.mx.Unlock()
+		me.rmMvFrom(cookie)
 	}()
 }
 
 //
-func (me *mvEvents) addMvTo(cookie int, name string, parentWd int, isDir bool) {
-	me.mx.Lock()
-	mvFrom := me.mvFrom[cookie]
-	me.mx.Unlock()
-
+func (me *mvEvents) addMvTo(cookie int, name string, parentWd int, isDir bool) error {
+	mvFrom := me.getMvFrom(cookie)
 	if mvFrom != nil {
-		me.mx.Lock()
-		delete(me.mvFrom, cookie)
-		me.mx.Unlock()
-
+		// delete From Event
+		me.rmMvFrom(cookie)
 		close(mvFrom.done)
 
 		me.queue <- &mvEvent{
@@ -239,7 +238,7 @@ func (me *mvEvents) addMvTo(cookie int, name string, parentWd int, isDir bool) {
 			isDir:       isDir,
 		}
 
-		return
+		return nil
 	}
 
 	me.queue <- &mvEvent{
@@ -247,6 +246,24 @@ func (me *mvEvents) addMvTo(cookie int, name string, parentWd int, isDir bool) {
 		newParentWd: parentWd,
 		newName:     name,
 	}
+
+	return nil
+}
+
+//
+func (me *mvEvents) getMvFrom(cookie int) *mvFromEvent {
+	me.mx.RLock()
+	defer me.mx.RUnlock()
+
+	return me.mvFrom[cookie]
+}
+
+//
+func (me *mvEvents) rmMvFrom(cookie int) {
+	me.mx.Lock()
+	defer me.mx.Unlock()
+
+	delete(me.mvFrom, cookie)
 }
 
 //

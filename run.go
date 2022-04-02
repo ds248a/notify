@@ -69,6 +69,7 @@ func (n *Notify) run() {
 		defer n.Close()
 
 		for {
+			// LEVEL 1 START
 			select {
 			case <-n.done:
 				return
@@ -77,6 +78,7 @@ func (n *Notify) run() {
 				n.errs <- fmt.Errorf("reading from inotify instance's fd: %v", err)
 				return
 
+			// LEVEL 1.3 START
 			case res := <-readingRes:
 				var e Event
 				parentDir := n.tree.get(int(res.inotifyE.Wd))
@@ -93,6 +95,7 @@ func (n *Notify) run() {
 					continue
 				}
 
+				// LEVEL 2 START
 				switch {
 				// this event is only handled if it is from the root, since, if it is from any other directory,
 				// it means that this directory's parent has already received an IN_DELETE event
@@ -151,17 +154,21 @@ func (n *Notify) run() {
 				case res.inotifyE.Mask&unix.IN_MOVED_TO == unix.IN_MOVED_TO:
 					n.mvEvents.addMvTo(int(res.inotifyE.Cookie), res.name, int(res.inotifyE.Wd), isDir)
 				}
+				// LEVEL 2 STOP
 
 				if e != nil {
 					n.events <- e
 				}
+			// LEVEL 1.3 STOP
 
+			// LEVEL 1.4
 			case mvEvent := <-n.mvEvents.queue:
 				var oldPath, newPath string
 
 				hasMvFrom := mvEvent.oldName != ""
 				hasMvTo := mvEvent.newName != ""
 
+				// LEVEL 2 START
 				switch {
 				case hasMvFrom && hasMvTo:
 					oldPath = path.Join(
@@ -211,13 +218,15 @@ func (n *Notify) run() {
 						}
 					}
 				}
+				// LEVEL 2 STOP
 
 				n.events <- RenameEvent{
 					isDir:   mvEvent.isDir,
-					OldPath: oldPath,
+					oldPath: oldPath,
 					path:    newPath,
 				}
 			}
+			// LEVEL 1 STOP
 		}
 	}()
 }
