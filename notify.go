@@ -272,7 +272,6 @@ func (wd *watchDir) setChild(name string, dir *watchDir) {
 	wd.mx.Lock()
 	defer wd.mx.Unlock()
 
-	// item.parent.children[name] = item
 	wd.children[name] = dir
 }
 
@@ -333,8 +332,10 @@ func (wdt *watchDirsTree) add(wd int, name string, parentWd int) {
 		children: map[string]*watchDir{},
 	}
 
-	d.parent.children[d.name] = d
-	wdt.items[d.wd] = d
+	// d.parent.children[d.name] = d
+	// wdt.items[d.wd] = d
+	d.parent.setChild(name, d)
+	wdt.set(d.wd, d)
 }
 
 //
@@ -343,6 +344,14 @@ func (wdt *watchDirsTree) get(wd int) *watchDir {
 	defer wdt.mx.RUnlock()
 
 	return wdt.items[wd]
+}
+
+//
+func (wdt *watchDirsTree) set(wd int, d *watchDir) {
+	wdt.mx.Lock()
+	defer wdt.mx.Unlock()
+
+	wdt.items[wd] = d
 }
 
 //
@@ -358,7 +367,6 @@ func (wdt *watchDirsTree) rm(wd int) {
 		panic("cannot remove root")
 	}
 
-	// delete(item.parent.children, item.name)
 	item.parent.rmChild(dirName)
 
 	for _, child := range item.children {
@@ -463,13 +471,12 @@ func (wdt *watchDirsTree) find(path string) *watchDir {
 		parent := wdt.getRoot()
 
 		for _, pathSegment := range pathSegments {
-			// d := parent.children[pathSegment]
 			d := parent.getChild(pathSegment)
 			if d == nil {
 				return nil
 			}
 
-			parent = d // <!--
+			parent = d
 		}
 
 		return parent
